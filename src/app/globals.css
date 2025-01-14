@@ -1,0 +1,38 @@
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box !important;
+}
+
+@font-face {
+  font-family: "satoshi-medium";
+  src: url("./assets/fonts/satoshi/satoshi-medium.ttf");
+}
+@font-face {
+  font-family: "satoshi-black";
+  src: url("./assets/fonts/satoshi/satoshi-black.ttf");
+}
+@font-face {
+  font-family: "myuen-prc-semibold";
+  src: url("./assets/fonts/myuen-prc/myuen-prc-semibold.ttf");
+}
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #393E46;
+  font-family: "satoshi-medium";
+}
+
+button {
+  all: unset;
+  cursor: pointer;
+}
+
+svg {
+  flex-shrink: 0;
+}
+
+.hidden {
+  display: none !important;
+}
