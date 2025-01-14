@@ -13,10 +13,7 @@
   font-family: "satoshi-black";
   src: url("./assets/fonts/satoshi/satoshi-black.ttf");
 }
-@font-face {
-  font-family: "myuen-prc-semibold";
-  src: url("./assets/fonts/myuen-prc/myuen-prc-semibold.ttf");
-}
+
 body {
   margin: 0;
   padding: 0;
