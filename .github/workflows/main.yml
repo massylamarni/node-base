@@ -11,4 +11,4 @@ jobs:
     steps:
       - name: Keep service alive
         run: |
-          curl -X POST http://targethost.com/keep-alive-endpoint -H "Content-Type: application/json" -d '{"ping": "hi"}'
+          curl -X POST https://node-base-86c5.onrender.com/api/post/ping -H "Content-Type: application/json" -d '{"ping": "hi"}'
