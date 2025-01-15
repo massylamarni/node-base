@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import SensorDisplay from './components/sensor-display';
+import SensorStateDisplay from './components/sensor-state-display';
 
 export default function Home() {
   const [gas, setGas] = useState(null);
@@ -41,9 +42,9 @@ export default function Home() {
 
   return (
     <>
-      {gas && <SensorDisplay sensorData={gas} sensorType={'Gas rate'} sensorUnit={'M³'} />}
-      {temperature && <SensorDisplay sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} />}
-
+      {temperature && <SensorDisplay sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} iconNum={0} />}
+      {gas && <SensorDisplay sensorData={gas} sensorType={'Gas rate'} sensorUnit={'M³'} iconNum={1} />}
+      {uid && <SensorStateDisplay sensorData={uid} stateType={'Door state'} />}
     </>
   );
 }
