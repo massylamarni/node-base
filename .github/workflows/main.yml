@@ -1,0 +1,14 @@
+name: Keep service alive
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+
+jobs:
+  cron:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Keep service alive
+        run: |
+          curl -X POST http://targethost.com/keep-alive-endpoint -H "Content-Type: application/json" -d '{"ping": "hi"}'
