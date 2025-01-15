@@ -13,7 +13,7 @@ export async function GET(req) {
     const db = await connectToDatabase(); // Connect to MongoDB
     const collection = db.collection('temperature');
     
-    const records =  await collection.find({ createdAt: { $gte: new Date(Date.now() - NLastHours * 60 * 60 * 1000) } }).toArray();
+    const records =  await collection.find({ createdAt: { $gte: new Date(Date.now() - NLastHours * 60 * 60 * 1000) } }).sort({ createdAt: -1 }).toArray();
     return NextResponse.json(records);
   } catch (err) {
     console.error('Error connecting to MongoDB:', err);

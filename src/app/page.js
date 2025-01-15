@@ -29,6 +29,14 @@ export default function Home() {
     fetchData('gas', setGas);
     fetchData('temperature', setTemperature);
     fetchData('rfid', setUid);
+    const intervalId = setInterval(() => {
+      fetchData('gas', setGas);
+      fetchData('temperature', setTemperature);
+      fetchData('rfid', setUid);
+    }, 1000); // 5000ms = 5 seconds
+
+    // Clear interval when component unmounts
+    return () => clearInterval(intervalId);
   }, [time]);
 
   return (

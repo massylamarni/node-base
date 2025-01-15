@@ -16,15 +16,15 @@ function getPeakSensorValue(peak, sensorData) {
 
 function getChartFormat(sensorData, numOfEntries) {
     const limitedData = numOfEntries ? sensorData.slice(0, numOfEntries) : sensorData;
-    const labels = limitedData.map(entry => entry.createdAt);
-    const data = limitedData.map(entry => parseFloat(entry.data));
+    const labels = limitedData.map(entry => entry.createdAt).reverse();
+    const data = limitedData.map(entry => parseFloat(entry.data)).reverse();
 
     return {"labels": labels, "data": data};
 }
 
 export default function SensorDisplay({ sensorData, sensorType, sensorUnit }) {
   const chartRef = useRef(null);
-
+    console.log(sensorType + ' ' + sensorData[0].data);
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
@@ -52,6 +52,9 @@ export default function SensorDisplay({ sensorData, sensorType, sensorUnit }) {
         options: {
             plugins: {
                 legend: { display: false },
+            },
+            animation: {
+                duration: 0,
             },
             scales: {
                 x: {
