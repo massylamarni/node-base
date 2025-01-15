@@ -9,7 +9,7 @@ export async function POST(req) {
     const collection = db.collection('gas'); // Access the 'gas' collection
 
     const newGasCapture = await collection.insertOne({
-      gasLevel: data.data,
+      data: data.data,
       createdAt: new Date(),
     });
 

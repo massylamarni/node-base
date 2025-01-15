@@ -9,7 +9,7 @@ export async function POST(req) {
     const collection = db.collection('rfid'); // Access the 'rfid' collection
 
     const newRFIDCapture = await collection.insertOne({
-      uid: data.data,
+      data: data.data,
       createdAt: new Date(),
     });
 

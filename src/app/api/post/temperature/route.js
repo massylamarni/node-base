@@ -9,7 +9,7 @@ export async function POST(req) {
     const collection = db.collection('temperature'); // Access the 'temperature' collection
 
     const newtemperatureCapture = await collection.insertOne({
-      tempLevel: data.data,
+      data: data.data,
       createdAt: new Date(),
     });
 
