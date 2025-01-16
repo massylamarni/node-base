@@ -11,7 +11,7 @@ export default function Home() {
   const [temperature, setTemperature] = useState(null);
   const [uid, setUid] = useState(null);
   const [postDelay, setPostDelay] = useState(5000); //ms
-  const [dataTimeRange, setDataTimeRange] = useState({"start": new Date().setHours(0, 0, 0, 0), "end": new Date()});
+  const [dataTimeRange, setDataTimeRange] = useState({"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()});
   const [error, setError] = useState(null);
 
   useEffect(() => {
