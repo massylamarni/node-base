@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Chart } from 'chart.js/auto';
+import { missingDataSpectrum } from '../functions/main';
 
 function getPeakSensorValue(peak, sensorData) {
     let max = 0, min = 100;
@@ -14,27 +15,27 @@ function getPeakSensorValue(peak, sensorData) {
     return (peak == 0) ? min : max;
 }
 
-function getChartFormat(sensorData, numOfEntries) {
-    const limitedData = numOfEntries ? sensorData.slice(0, numOfEntries) : sensorData;
-    const labels = limitedData.map(entry => entry.createdAt).reverse();
-    const data = limitedData.map(entry => parseFloat(entry.data)).reverse();
-
-    return {"labels": labels, "data": data};
+function formatSensorData(sensorData) {
+    const chartData = sensorData.map(entry => {
+      return {"x": new Date(entry.createdAt), "y": parseFloat(entry.data)}
+    });
+    return chartData;
 }
 
-export default function SensorDisplay({ sensorData, sensorType, sensorUnit, iconNum }) {
+export default function SensorDisplayData({ sensorData, sensorType, sensorUnit, iconNum }) {
   const chartRef = useRef(null);
+  const [displayTimeRange, setDisplayTimeRange] = useState({"start": new Date((new Date().getTime() - 1 * 60 * 1000)), "end": new Date()});
+
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
-      const chartData = getChartFormat(sensorData, 10);
+      setDisplayTimeRange({"start": new Date((new Date().getTime() - 1 * 60 * 1000)), "end": new Date()});
       const chartInstance = new Chart(chartRef.current, {
         type: 'line',
         data: {
-          labels: chartData.labels,
           datasets: [
             { 
-              data: chartData.data,
+              data: formatSensorData(sensorData),
               fill: false,
               tension: 0.5,
               pointRadius: 0,
@@ -46,9 +47,27 @@ export default function SensorDisplay({ sensorData, sensorType, sensorUnit, icon
                 return gradient;
               },
             },
+            { 
+              data: formatSensorData(missingDataSpectrum(sensorData, displayTimeRange)),
+              fill: false,
+              tension: 0.5,
+              pointRadius: 0,
+              borderColor: function(context) {
+                const gradient = ctx.createLinearGradient(0, 0, context.chart.width, 0);
+                gradient.addColorStop(0, 'rgba(31, 31, 31, 0)'); // Solid color at the start
+                gradient.addColorStop(0.5, 'rgb(228, 48, 48)'); // Start fading at 20%
+                gradient.addColorStop(1, 'rgba(31, 31, 31, 0)'); // Solid color at the end
+                return gradient;
+              },
+            },
           ]
         },
         options: {
+            layout: {
+              padding: {
+                  top: 15,
+              }
+            },
             plugins: {
                 legend: { display: false },
             },
@@ -58,13 +77,16 @@ export default function SensorDisplay({ sensorData, sensorType, sensorUnit, icon
             responsive: true,
             scales: {
                 x: {
+                  type: 'time',
                   display: false, // Remove X-axis labels
                   grid: {
                     display: false // Remove grid lines for X-axis
                   },
                   ticks: {
                     display: false // Remove ticks (numbers) on X-axis
-                  }
+                  },
+                  min: displayTimeRange.start,
+                  max: displayTimeRange.end
                 },
                 y: {
                   display: false, // Remove Y-axis labels
@@ -73,7 +95,8 @@ export default function SensorDisplay({ sensorData, sensorType, sensorUnit, icon
                   },
                   ticks: {
                     display: false // Remove ticks (numbers) on Y-axis
-                  }
+                  },
+                  min: 0,
                 }
             }
         }
@@ -86,7 +109,7 @@ export default function SensorDisplay({ sensorData, sensorType, sensorUnit, icon
         }
       };
     }
-  }, [sensorData, sensorType]);  // Re-run effect if sensorData or sensorType changes
+  }, [sensorData]);
 
   return (
     <div className="sensor-display">
@@ -127,7 +150,7 @@ export default function SensorDisplay({ sensorData, sensorType, sensorUnit, icon
         </div>
         <div>
           <div className="sensor-display-title">
-            <div>{sensorData && sensorData[0].data}</div>
+            <div>{sensorData && sensorData[sensorData.length-1].data}</div>
             <div>{sensorUnit}</div>
           </div>
           <div className="sensor-display-subtitle">

@@ -3,14 +3,15 @@ import { Chart } from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
 function getLastUID(sensorData) {
-    return sensorData.filter(entry => entry.data !== '0');
+  const uids = sensorData.filter(entry => entry.data !== '0');
+  return uids[uids.length-1] ? uids[uids.length-1].data : "No uids to show";
 }
 
 function getDoorState(sensorData) {
-    return sensorData[0].data == '0' ? false : true;
+  return sensorData[sensorData.length-1].data == '0' ? false : true;
 }
 
-export default function SensorStateDisplay({ sensorData, stateType }) {
+export default function SensorDisplayState({ sensorData, stateType }) {
   const chartRef = useRef(null);
 
   return (
@@ -50,7 +51,7 @@ export default function SensorStateDisplay({ sensorData, stateType }) {
         <div className="sensor-display-peaks">
           <div>
             <div>Last used uid</div>
-            <div>{getLastUID(sensorData)[0].data}</div>
+            <div>{getLastUID(sensorData)}</div>
           </div>
         </div>
         <canvas className="sensor-display-chart" ref={chartRef}></canvas>

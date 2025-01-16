@@ -3,10 +3,11 @@
   --foreground-color: #171717;
   --element-color: #1F1F1F;
   --element-border-color: #383838;
-  --greyed-text-color: #8F8F8F;
   --signature-color: #30E48E;
   --signature-color-filter: #30E48E10;
   --signature-color-filter-border: #30E48E3F;
+  --greyed-text-color: #8F8F8F;
+  --default-text-color: #CFCFCF;
 }
 
 *,
@@ -117,4 +118,33 @@ svg {
 
 .sensor-display-chart {
   width: 200px !important;
+}
+
+.sensor-chart {
+  display: flex;
+  flex-direction: column;
+  margin: 15px;
+  background-color: var(--element-color);
+  border: 1px solid var(--element-border-color);
+  border-radius: 15px;
+  padding: 15px;
+  height: fit-content;
+  width: fit-content;
+}
+
+.sensor-chart-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sensor-chart-title {
+  color: var(--default-text-color);
+}
+
+.sensor-chart-dropdown {
+}
+
+.sensor-chart-chart {
+  width: 500px;
 }
