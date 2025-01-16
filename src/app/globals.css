@@ -55,6 +55,7 @@ svg {
   padding: 15px;
   height: fit-content;
   width: fit-content;
+  cursor: pointer;
 }
 
 .sensor-display-head {
@@ -136,6 +137,7 @@ svg {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 15px;
 }
 
 .sensor-chart-title {

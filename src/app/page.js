@@ -4,14 +4,18 @@ import { useState, useEffect } from 'react';
 import SensorDisplayData from './components/sensor-display-data';
 import SensorDisplayState from './components/sensor-display-state';
 import SensorChart from './components/sensor-chart';
-import { checkStruct } from './functions/main';
+import { checkStruct, filterNull } from './functions/main';
+
+const DATA_TIME_RANGE = {"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()};
 
 export default function Home() {
   const [gas, setGas] = useState(null);
   const [temperature, setTemperature] = useState(null);
+  const [movement, setMovement] = useState(null);
   const [uid, setUid] = useState(null);
   const [postDelay, setPostDelay] = useState(5000); //ms
-  const [dataTimeRange, setDataTimeRange] = useState({"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()});
+  const [chartVisibilityIndex, setChartVisibilityIndex] = useState(-1);
+  const [dataTimeRange, setDataTimeRange] = useState(DATA_TIME_RANGE);
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -22,7 +26,7 @@ export default function Home() {
           throw new Error('Failed to fetch data');
         }
         const result = await response.json();
-        setter(result);
+        setter(filterNull(result));
       } catch (err) {
         setError(err.message);
       }
@@ -33,11 +37,13 @@ export default function Home() {
     fetchData('gas', setGas);
     fetchData('temperature', setTemperature);
     fetchData('rfid', setUid);
+    fetchData('movement', setMovement);
     const intervalId = setInterval(() => {
       fetchData('gas', setGas);
       fetchData('temperature', setTemperature);
       fetchData('rfid', setUid);
-    }, 1000); // 5000ms = 5 seconds
+      fetchData('movement', setMovement);
+    }, 10000); // 5000ms = 5 seconds
 
     // Clear interval when component unmounts
     return () => clearInterval(intervalId);
@@ -45,11 +51,14 @@ export default function Home() {
 
   return (
     <>
-      {checkStruct(temperature) && <SensorDisplayData sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} iconNum={0} />}
-      {false && checkStruct(temperature) && <SensorChart sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} />}
-      {checkStruct(gas) && <SensorDisplayData sensorData={gas} sensorType={'Gas rate'} sensorUnit={'M³'} iconNum={1} />}
-      {false && checkStruct(gas) && <SensorChart sensorData={gas} sensorType={'Gas'} sensorUnit={'M³'} />}
-      {checkStruct(uid) && <SensorDisplayState sensorData={uid} stateType={'Door state'} />}
+      {true && checkStruct(temperature) && <SensorDisplayData id={0} sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} setChartVisibilityIndex={setChartVisibilityIndex} />}
+      {(chartVisibilityIndex == 0) && checkStruct(temperature) && <SensorChart sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} />}
+      {true && checkStruct(gas) && <SensorDisplayData id={1} sensorData={gas} sensorType={'Gas rate'} sensorUnit={'M³'} setChartVisibilityIndex={setChartVisibilityIndex} />}
+      {(chartVisibilityIndex == 1) && checkStruct(gas) && <SensorChart sensorData={gas} sensorType={'Gas'} sensorUnit={'M³'} />}
+      {true && checkStruct(movement) && <SensorDisplayData id={2} sensorData={movement} sensorType={'Movement'} sensorUnit={''} setChartVisibilityIndex={setChartVisibilityIndex} />}
+      {(chartVisibilityIndex == 2) && checkStruct(movement) && <SensorChart sensorData={movement} sensorType={'Movement'} sensorUnit={''} />}
+      {true && checkStruct(uid) && <SensorDisplayState sensorData={uid} stateType={'Door state'} />}
+      {(chartVisibilityIndex == 3) && checkStruct(uid) && <SensorChart sensorData={uid} sensorType={'Door state'} sensorUnit={''} />}
     </>
   );
 }

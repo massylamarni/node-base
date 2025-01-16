@@ -2,6 +2,8 @@ import { useEffect, useState, useRef } from 'react';
 import { Chart } from 'chart.js/auto';
 import { missingDataSpectrum } from '../functions/main';
 
+const DISPLAY_TIME_RANGE = {"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()};
+
 function averageData(data, chunkSize) {
     let avgs = [];
     let chunkSum = 0;
@@ -12,7 +14,7 @@ function averageData(data, chunkSize) {
             chunkSum = 0;
         }  
     }
-    if (chunkSum != 0) avgs.push(chunkSum/chunkSize);
+    if (chunkSum != 0) avgs.push({"x": data[data.length-1].x, "y": chunkSum/chunkSize});
     return avgs;
 }
 
@@ -20,26 +22,31 @@ function formatSensorData(sensorData, displayTimeRange) {
     const chartData = sensorData.map(entry => {
       return {"x": new Date(entry.createdAt), "y": parseFloat(entry.data)}
     });
-    
-    return averageData(chartData, 16);
+    const maxEntrySize = 15;
+    const maxTimeSpan = 1000000;
+    const timeSpan = new Date(displayTimeRange.end) - new Date(displayTimeRange.start);
+    const timeNonce = timeSpan / 100000;
+    const baseChunkSize = 5;
+    const chunkSize = (sensorData.length > maxEntrySize && timeSpan > maxTimeSpan) ? Math.floor(timeNonce/baseChunkSize) : 0;
+    return chunkSize == 0 ? chartData : averageData(chartData, chunkSize);
 }
 
   
 
 export default function SensorChart({ sensorData, sensorType, sensorUnit }) {
   const chartRef = useRef(null);
-  const [displayTimeRange, setDisplayTimeRange] = useState({"start": new Date().setHours(0, 0, 0, 0), "end": new Date()});
+  const [displayTimeRange, setDisplayTimeRange] = useState(DISPLAY_TIME_RANGE);
 
    useEffect(() => {
      if (chartRef.current) {
        const ctx = chartRef.current.getContext('2d');
-       setDisplayTimeRange({"start": new Date((new Date().getTime() - 100 * 60 * 1000)), "end": new Date()});
+       setDisplayTimeRange(DISPLAY_TIME_RANGE);
        const chartInstance = new Chart(chartRef.current, {
          type: 'line',
          data: {
            datasets: [
              { 
-               data: formatSensorData(sensorData),
+               data: formatSensorData(sensorData, displayTimeRange),
                fill: true,
                tension: 0.5,
                pointRadius: 0,
@@ -52,7 +59,7 @@ export default function SensorChart({ sensorData, sensorType, sensorUnit }) {
                },
              },
              { 
-               data: formatSensorData(missingDataSpectrum(sensorData, displayTimeRange)),
+               data: formatSensorData(sensorData, displayTimeRange),
                fill: true,
                tension: 0.5,
                pointRadius: 0,
@@ -82,24 +89,24 @@ export default function SensorChart({ sensorData, sensorType, sensorUnit }) {
              scales: {
                  x: {
                    type: 'time',
-                   display: true, // Remove X-axis labels
+                   display: true,
                    grid: {
-                     display: false // Remove grid lines for X-axis
+                     display: false
                    },
                    ticks: {
-                     display: true, // Remove ticks (numbers) on X-axis
-                     stepSize: 10
+                     display: true,
+                     stepSize: 5
                    },
                    min: displayTimeRange.start,
                    max: displayTimeRange.end
                  },
                  y: {
-                   display: false, // Remove Y-axis labels
+                   display: true,
                    grid: {
-                     display: false // Remove grid lines for Y-axis
+                     display: false
                    },
                    ticks: {
-                     display: false // Remove ticks (numbers) on Y-axis
+                     display: true
                    },
                    min: 0,
                  }

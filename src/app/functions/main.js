@@ -2,12 +2,21 @@ export const checkStruct = (data) => {
     return (data && data[0]);
 }
 
+export const filterNull = (data) => {
+    if (checkStruct(data)) {
+        const filteredData = data.filter(entry => (entry.data != null));
+        return filteredData;
+    }
+    return data;
+}
+
 export function missingDataSpectrum(sensorData, displayTimeRange) {
     let missingData = [];
     const delay = 5000;
+    const dummyValue = "0";
     const defaultMissingData = [
-      {"data": "0", "createdAt": new Date(displayTimeRange.start).toString()},
-      {"data": "0", "createdAt": new Date(displayTimeRange.end).toString()} 
+      {"data": dummyValue, "createdAt": new Date(displayTimeRange.start).toString()},
+      {"data": dummyValue, "createdAt": new Date(displayTimeRange.end).toString()} 
     ];
 
     if (!checkStruct(sensorData)) {
@@ -23,16 +32,16 @@ export function missingDataSpectrum(sensorData, displayTimeRange) {
 
         missingData = [
           {"data": sensorData[sensorData.length-1].data, "createdAt": new Date(dataTime.end).toString()},
-          {"data": 0, "createdAt": new Date(dataTime.end.getTime()+delay).toString()},
-          {"data": 0, "createdAt": new Date(displayTimeRange.end).toString()}
+          {"data": dummyValue, "createdAt": new Date(dataTime.end.getTime()+delay).toString()},
+          {"data": dummyValue, "createdAt": new Date(displayTimeRange.end).toString()}
         ];
       }
       else if (dataTime.start > displayTimeRange.start && dataTime.end >= displayTimeRange.end) {
         console.log('-----------------------------------3');
 
         missingData = [
-          {"data": 0, "createdAt": new Date(displayTimeRange.start).toString()},
-          {"data": 0, "createdAt": new Date(dataTime.start.getTime()-delay).toString()},
+          {"data": dummyValue, "createdAt": new Date(displayTimeRange.start).toString()},
+          {"data": dummyValue, "createdAt": new Date(dataTime.start.getTime()-delay).toString()},
           {"data": sensorData[0].data, "createdAt": new Date(dataTime.start).toString()},
         ];
       }
@@ -40,17 +49,21 @@ export function missingDataSpectrum(sensorData, displayTimeRange) {
         console.log('-----------------------------------4');
 
         missingData = [
-          {"data": 0, "createdAt": new Date(displayTimeRange.start).toString()},
-          {"data": 0, "createdAt": new Date(dataTime.start.getTime()-delay).toString()},
+        /*
+          {"data": dummyValue, "createdAt": new Date(displayTimeRange.start).toString()},
+          {"data": dummyValue, "createdAt": new Date(dataTime.start.getTime()-delay).toString()},
           {"data": sensorData[0].data, "createdAt": new Date(dataTime.start).toString()},
+        */
           {"data": sensorData[sensorData.length-1].data, "createdAt": new Date(dataTime.end).toString()},
-          {"data": 0, "createdAt": new Date(dataTime.end.getTime()+delay).toString()},
-          {"data": 0, "createdAt": new Date(displayTimeRange.end).toString()}
+          {"data": dummyValue, "createdAt": new Date(dataTime.end.getTime()+delay).toString()},
+          {"data": dummyValue, "createdAt": new Date(displayTimeRange.end).toString()}
         ];
       } else {
         console.log('-----------------------------------5');
         missingData = defaultMissingData;
       }
     }
+    console.log(sensorData);
+    console.log(missingData);
     return missingData;
   }
