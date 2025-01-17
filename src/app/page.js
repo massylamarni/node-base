@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import SensorDisplayData from './components/sensor-display-data';
 import SensorDisplayState from './components/sensor-display-state';
 import SensorChart from './components/sensor-chart';
-import { checkStruct, filterNull } from './functions/main';
+import { checkStruct, filterNull, missingDataSpectrum } from './functions/main';
 
 const DATA_TIME_RANGE = {"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()};
 
@@ -26,7 +26,8 @@ export default function Home() {
           throw new Error('Failed to fetch data');
         }
         const result = await response.json();
-        setter(filterNull(result));
+        const filteredResult = filterNull(result);
+        setter(filteredResult ? filteredResult : missingDataSpectrum(filteredResult, dataTimeRange));
       } catch (err) {
         setError(err.message);
       }
@@ -55,10 +56,10 @@ export default function Home() {
       {(chartVisibilityIndex == 0) && checkStruct(temperature) && <SensorChart sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} />}
       {true && checkStruct(gas) && <SensorDisplayData id={1} sensorData={gas} sensorType={'Gas rate'} sensorUnit={'M³'} setChartVisibilityIndex={setChartVisibilityIndex} />}
       {(chartVisibilityIndex == 1) && checkStruct(gas) && <SensorChart sensorData={gas} sensorType={'Gas'} sensorUnit={'M³'} />}
-      {true && checkStruct(movement) && <SensorDisplayData id={2} sensorData={movement} sensorType={'Movement'} sensorUnit={''} setChartVisibilityIndex={setChartVisibilityIndex} />}
-      {(chartVisibilityIndex == 2) && checkStruct(movement) && <SensorChart sensorData={movement} sensorType={'Movement'} sensorUnit={''} />}
-      {true && checkStruct(uid) && <SensorDisplayState sensorData={uid} stateType={'Door state'} />}
+      {true && checkStruct(uid) && <SensorDisplayState sensorData={uid} stateType={'Door state'} stateValue={{"true": "Open", "false": "Closed"}} />}
       {(chartVisibilityIndex == 3) && checkStruct(uid) && <SensorChart sensorData={uid} sensorType={'Door state'} sensorUnit={''} />}
+      {true && checkStruct(movement) && <SensorDisplayState sensorData={movement} stateType={'Movement'} stateValue={{"true": "Movement detected", "false": "No Movement"}} />}
+      {(chartVisibilityIndex == 2) && checkStruct(movement) && <SensorChart sensorData={movement} sensorType={'Movement'} sensorUnit={''} />}
     </>
   );
 }

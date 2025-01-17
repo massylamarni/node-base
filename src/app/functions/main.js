@@ -7,7 +7,7 @@ export const filterNull = (data) => {
         const filteredData = data.filter(entry => (entry.data != null));
         return filteredData;
     }
-    return data;
+    return false;
 }
 
 export function missingDataSpectrum(sensorData, displayTimeRange) {
@@ -18,8 +18,9 @@ export function missingDataSpectrum(sensorData, displayTimeRange) {
       {"data": dummyValue, "createdAt": new Date(displayTimeRange.start).toString()},
       {"data": dummyValue, "createdAt": new Date(displayTimeRange.end).toString()} 
     ];
-
+    
     if (!checkStruct(sensorData)) {
+      console.log('-----------------------------------0');
       missingData = defaultMissingData;
     } else {
       const dataTime = {"start": new Date(sensorData[0].createdAt), "end": new Date(sensorData[sensorData.length-1].createdAt)};
@@ -63,7 +64,5 @@ export function missingDataSpectrum(sensorData, displayTimeRange) {
         missingData = defaultMissingData;
       }
     }
-    console.log(sensorData);
-    console.log(missingData);
     return missingData;
   }
