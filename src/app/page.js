@@ -21,7 +21,7 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async (sensor, setter) => {
       try {
-        const response = await fetch(`/api/get/${sensor}?timeStart=${dataTimeRange.start}?timeEnd=${dataTimeRange.end}`);
+        const response = await fetch(`/api/get/${sensor}?timeStart=${dataTimeRange.start}&timeEnd=${dataTimeRange.end}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
         }
