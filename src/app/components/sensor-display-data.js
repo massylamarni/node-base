@@ -5,7 +5,7 @@ import { missingDataSpectrum } from '../functions/main';
 const DISPLAY_TIME_RANGE = {"start": new Date((new Date().getTime() - 1 * 60 * 1000)), "end": new Date().getTime()};
 
 function getPeakSensorValue(peak, sensorData) {
-    let max = sensorData[sensorData.length].data, min = sensorData[sensorData.length].data;
+    let max = sensorData[sensorData.length-1].data, min = sensorData[sensorData.length-1].data;
     for (let i = 0; i < sensorData.length; i++) {
         if (sensorData[i].data < min) {
             min = sensorData[i].data;
