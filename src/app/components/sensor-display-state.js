@@ -2,14 +2,12 @@ import { useEffect, useRef } from 'react';
 import { Chart } from 'chart.js/auto';
 import 'chartjs-adapter-date-fns';
 
-function getLastPositiveState(sensorData) {
-  const positiveStates = sensorData.filter(entry => entry.data !== '0');
-  const lastPositiveState = positiveStates[positiveStates.length-1] ? positiveStates[positiveStates.length-1].data : "Unknown";
-  return (lastPositiveState != '1') ? lastPositiveState : sensorData[sensorData.length-1].data;
+function getLastState(sensorData) {
+  return sensorData.at(-1).data.uid ? sensorData.at(-1).data.uid : (sensorData.at(-1).data ? "Detected" : "None");
 }
 
 function getState(sensorData) {
-  return sensorData[sensorData.length-1].data == '0' ? false : true;
+  return sensorData.at(-1).data.uid ? (sensorData.at(-1).data.is_valid == "1" ? true : false) : (parseFloat(sensorData.at(-1).data) ? true : false);
 }
 
 export default function SensorDisplayState({ sensorData, stateType, stateValue }) {
@@ -51,8 +49,8 @@ export default function SensorDisplayState({ sensorData, stateType, stateValue }
       <div className="sensor-display-body">
         <div className="sensor-display-peaks">
           <div>
-            <div>Last positive state</div>
-            <div>{getLastPositiveState(sensorData)}</div>
+            <div>Last state</div>
+            <div>{getLastState(sensorData)}</div>
           </div>
         </div>
         <canvas className="sensor-display-chart" ref={chartRef}></canvas>

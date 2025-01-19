@@ -20,7 +20,7 @@ function averageData(data, chunkSize) {
 
 function formatSensorData(sensorData, displayTimeRange) {
     const chartData = sensorData.map(entry => {
-      return {"x": new Date(entry.createdAt), "y": parseFloat(entry.data)}
+      return {"x": new Date(entry.createdAt), "y": entry.data.uid ? (entry.data.is_valid == "1" ? 1 : 0) : parseFloat(entry.data)}
     });
     const maxEntrySize = 15;
     const maxTimeSpan = 1000000;
