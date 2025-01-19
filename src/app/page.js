@@ -6,7 +6,9 @@ import SensorDisplayState from './components/sensor-display-state';
 import SensorChart from './components/sensor-chart';
 import { checkStruct, filterNull, missingDataSpectrum } from './functions/main';
 
-const DATA_TIME_RANGE = {"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()};
+const getDisplayTimeRange = () => {
+  return {"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()};
+}
 
 export default function Home() {
   const [gas, setGas] = useState(null);
@@ -15,7 +17,7 @@ export default function Home() {
   const [uid, setUid] = useState(null);
   const [postDelay, setPostDelay] = useState(5000); //ms
   const [chartVisibilityIndex, setChartVisibilityIndex] = useState(-1);
-  const [dataTimeRange, setDataTimeRange] = useState(DATA_TIME_RANGE);
+  const [dataTimeRange, setDataTimeRange] = useState(getDisplayTimeRange());
   const [error, setError] = useState(null);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function Home() {
       fetchData('temperature', setTemperature);
       fetchData('rfid', setUid);
       fetchData('movement', setMovement);
-    }, 10000); // 5000ms = 5 seconds
+    }, 1000);
 
     // Clear interval when component unmounts
     return () => clearInterval(intervalId);

@@ -2,7 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import { Chart } from 'chart.js/auto';
 import { missingDataSpectrum } from '../functions/main';
 
-const DISPLAY_TIME_RANGE = {"start": new Date((new Date().getTime() - 1 * 60 * 1000)), "end": new Date().getTime()};
+const getDisplayTimeRange = () => {
+  return {"start": new Date((new Date().getTime() - 1 * 60 * 1000)), "end": new Date(new Date().getTime() - 1 * 1000)};
+}
 
 function getPeakSensorValue(peak, sensorData) {
     let max = sensorData[sensorData.length-1].data, min = sensorData[sensorData.length-1].data;
@@ -26,12 +28,13 @@ function formatSensorData(sensorData) {
 
 export default function SensorDisplayData({ id, sensorData, sensorType, sensorUnit, setChartVisibilityIndex }) {
   const chartRef = useRef(null);
-  const [displayTimeRange, setDisplayTimeRange] = useState(DISPLAY_TIME_RANGE);
+  const [displayTimeRange, setDisplayTimeRange] = useState(getDisplayTimeRange());
 
   useEffect(() => {
     if (chartRef.current) {
       const ctx = chartRef.current.getContext('2d');
-      setDisplayTimeRange(DISPLAY_TIME_RANGE);
+      setDisplayTimeRange(getDisplayTimeRange());
+      
       const chartInstance = new Chart(chartRef.current, {
         type: 'line',
         data: {
