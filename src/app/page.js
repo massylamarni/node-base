@@ -21,8 +21,18 @@ export default function Home() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    const intervalId = setInterval(() => {
+      setDataTimeRange(getDisplayTimeRange());
+    }, 3000);
+  
+    // Clear interval when component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
     const fetchData = async (sensor, setter) => {
       try {
+        console.log(dataTimeRange);
         const response = await fetch(`/api/get/${sensor}?timeStart=${dataTimeRange.start}&timeEnd=${dataTimeRange.end}`);
         if (!response.ok) {
           throw new Error('Failed to fetch data');
@@ -34,23 +44,13 @@ export default function Home() {
         setError(err.message);
       }
     };
-    
 
-    // Trigger the API call whenever `time` changes
     fetchData('gas', setGas);
     fetchData('temperature', setTemperature);
     fetchData('rfid', setUid);
     fetchData('movement', setMovement);
-    const intervalId = setInterval(() => {
-      fetchData('gas', setGas);
-      fetchData('temperature', setTemperature);
-      fetchData('rfid', setUid);
-      fetchData('movement', setMovement);
-    }, 1000);
-
-    // Clear interval when component unmounts
-    return () => clearInterval(intervalId);
   }, [dataTimeRange]);
+
 
   return (
     <>
