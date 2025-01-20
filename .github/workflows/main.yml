@@ -1,14 +1,1 @@
-name: Keep service alive
 
-on:
-  schedule:
-    - cron: "*/10 * * * *"
-
-jobs:
-  cron:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Keep service alive
-        run: |
-          curl -X POST https://node-base-86c5.onrender.com/api/post/ping -H "Content-Type: application/json" -d '{"ping": "hi"}'
