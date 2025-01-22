@@ -4,64 +4,53 @@ import { useState, useEffect } from 'react';
 import SensorDisplayData from './components/sensor-display-data';
 import SensorDisplayState from './components/sensor-display-state';
 import SensorChart from './components/sensor-chart';
-import { checkStruct, filterNull, missingDataSpectrum } from './functions/main';
 
-const getDisplayTimeRange = () => {
-  return {"start": new Date().setHours(0, 0, 0, 0), "end": new Date().getTime()};
+const TEMPERATURE_INFO = {
+  'type': 'Temperature',
+  'unit': '°C'
+}
+const GAS_INFO = {
+  'type': 'Gas rate',
+  'unit': 'PPM'
+}
+const RFID_INFO = {
+  'type': 'RFID validation',
+  'dataType': 'uid',
+  'true': 'Valid',
+  'false': 'Not valid'
+}
+const MOVEMENT_INFO = {
+  'type': 'Movement state',
+  'dataType': 'state',
+  'true': 'Movement detected',
+  'false': 'No Movement'
+}
+
+const CHARTS_INFO = {
+  'data': [
+    {'id': 'chart-d1', 'endpoint': {'name': '/api/get/temperature', 'type': 'GET'}, 'info': TEMPERATURE_INFO},
+    {'id': 'chart-d2', 'endpoint': {'name': '/api/get/gas', 'type': 'GET'}, 'info': GAS_INFO}
+  ],
+  'state': [
+    {'id': 'chart-s1', 'endpoint': {'name': '/api/get/rfid', 'type': 'GET'}, 'info': RFID_INFO},
+    {'id': 'chart-s2', 'endpoint': {'name': '/api/get/movement', 'type': 'GET'}, 'info': MOVEMENT_INFO},
+  ],
+  'chart': [
+    {'id': 'chart-c1', 'endpoint': {'name': '/api/get/temperature', 'type': 'GET'}, 'info': TEMPERATURE_INFO},
+    {'id': 'chart-c2', 'endpoint': {'name': '/api/get/gas', 'type': 'GET'}, 'info': GAS_INFO},
+    {'id': 'chart-c3', 'endpoint': {'name': '/api/get/rfid', 'type': 'GET'}, 'info': RFID_INFO},
+    {'id': 'chart-c4', 'endpoint': {'name': '/api/get/movement', 'type': 'GET'}, 'info': MOVEMENT_INFO},
+  ]
 }
 
 export default function Home() {
-  const [gas, setGas] = useState(null);
-  const [temperature, setTemperature] = useState(null);
-  const [movement, setMovement] = useState(null);
-  const [uid, setUid] = useState(null);
-  const [postDelay, setPostDelay] = useState(5000); //ms
-  const [chartVisibilityIndex, setChartVisibilityIndex] = useState(-1);
-  const [dataTimeRange, setDataTimeRange] = useState(getDisplayTimeRange());
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setDataTimeRange(getDisplayTimeRange());
-    }, 3000);
-  
-    // Clear interval when component unmounts
-    return () => clearInterval(intervalId);
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async (sensor, setter) => {
-      try {
-        console.log(dataTimeRange);
-        const response = await fetch(`/api/get/${sensor}?timeStart=${dataTimeRange.start}&timeEnd=${dataTimeRange.end}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const result = await response.json();
-        const filteredResult = filterNull(result);
-        setter(filteredResult ? filteredResult : missingDataSpectrum(filteredResult, dataTimeRange));
-      } catch (err) {
-        setError(err.message);
-      }
-    };
-
-    fetchData('gas', setGas);
-    fetchData('temperature', setTemperature);
-    fetchData('rfid', setUid);
-    fetchData('movement', setMovement);
-  }, [dataTimeRange]);
-
 
   return (
     <>
-      {true && checkStruct(temperature) && <SensorDisplayData id={0} sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} setChartVisibilityIndex={setChartVisibilityIndex} />}
-      {(chartVisibilityIndex == 0) && checkStruct(temperature) && <SensorChart sensorData={temperature} sensorType={'Temperature'} sensorUnit={'°C'} />}
-      {true && checkStruct(gas) && <SensorDisplayData id={1} sensorData={gas} sensorType={'Gas rate'} sensorUnit={'M³'} setChartVisibilityIndex={setChartVisibilityIndex} />}
-      {(chartVisibilityIndex == 1) && checkStruct(gas) && <SensorChart sensorData={gas} sensorType={'Gas'} sensorUnit={'M³'} />}
-      {true && checkStruct(uid) && <SensorDisplayState sensorData={uid} stateType={'Door state'} stateValue={{"true": "Open", "false": "Closed"}} />}
-      {(chartVisibilityIndex == 3) && checkStruct(uid) && <SensorChart sensorData={uid} sensorType={'Door state'} sensorUnit={''} />}
-      {true && checkStruct(movement) && <SensorDisplayState sensorData={movement} stateType={'Movement'} stateValue={{"true": "Movement detected", "false": "No Movement"}} />}
-      {(chartVisibilityIndex == 2) && checkStruct(movement) && <SensorChart sensorData={movement} sensorType={'Movement'} sensorUnit={''} />}
+      {<SensorDisplayData chartInfo={CHARTS_INFO.data[0]} />}
+      {<SensorDisplayData chartInfo={CHARTS_INFO.data[1]} />}
+      {<SensorDisplayState chartInfo={CHARTS_INFO.state[0]} />}
+      {<SensorDisplayState chartInfo={CHARTS_INFO.state[1]} />}
     </>
   );
 }
