@@ -40,24 +40,56 @@ function getPeakSensorValue(dataArray) {
 }
 
 //Input [{"x": "timeString", "y": "value"}],
-//Output: [{"x": "timeString", "y": "averagValue"}]
+//Output: [{"x": "timeString", "y": "AverageData"}]
 function getAverageChartData(chartData, chartTimeRange) {
-  const minArrayLength = 15, minTimeSpan = 1, relativeChunkSize = 5;
-  const timeSpan = (new Date(chartTimeRange.end) - new Date(chartTimeRange.start)) / 100000;
-  const chunkSize = (chartData.length > minArrayLength && timeSpan > minTimeSpan) ? Math.floor(timeSpan/relativeChunkSize) : 0;
-  if (chunkSize == 0) return chartData;
+    const chartTimeStamp = chartTimeRange.end.getTime() - chartTimeRange.start.getTime();
+    const maxAllowedTimeStamp = chartTimeStamp / 500;
+    let groupedData = [chartData[0]];
+    let timeStampSum = 0;
+    let pointValueSum = 0, pointCount = 0;
+    for (let i = 1; i < chartData.length-1; i++) {
+        const pointTimeStamp = chartData[i].x.getTime() - chartData[i-1].x.getTime();
+        pointCount++;
+        if ((pointTimeStamp < maxAllowedTimeStamp) && (timeStampSum < maxAllowedTimeStamp)) {
+            timeStampSum = timeStampSum + pointTimeStamp;
+            pointValueSum = pointValueSum + chartData[i].y;
+        } else {
+            groupedData.push({"x": chartData[i].x, "y": pointValueSum / pointCount});
+            timeStampSum = 0;
+            pointValueSum = 0;
+            pointCount = 0;
+        }
+    }
+    groupedData.push(chartData.at(-1));
+  
+    return groupedData;
+}
 
-  let averageChartData = [];
-  let chunkSum = 0;
-  for (let i = 0; i < chartData.length; i++) {
-      chunkSum = chunkSum + chartData[i].y;
-      if (i%chunkSize === 0) {
-          averageChartData.push({"x": chartData[i].x, "y": chunkSum/chunkSize});
-          chunkSum = 0;
-      }
-  }
-  if (chunkSum != 0) averageChartData.push({"x": chartData.at(-1).x, "y": chunkSum/chunkSize});
-  return averageChartData;
+//Input [{"x": "timeString", "y": "value"}],
+//Output: [{"x": "timeString", "y": "groupedValue"}]
+function getGroupedChartData(chartData, chartTimeRange) {
+    const chartTimeStamp = chartTimeRange.end.getTime() - chartTimeRange.start.getTime();
+    const maxAllowedTimeStamp = chartTimeStamp / 1500;
+    let groupedData = [chartData[0]];
+    let timeStampSum = 0;
+    let isChunkPositive = false;
+    let timeAtChunkStart = 0;
+    for (let i = 1; i < chartData.length-1; i++) {
+        if (timeAtChunkStart == 0) timeAtChunkStart = chartData[i].x.getTime();
+        const pointTimeStamp = chartData[i].x.getTime() - chartData[i-1].x.getTime();
+        if ((pointTimeStamp < maxAllowedTimeStamp) && (timeStampSum < maxAllowedTimeStamp)) {
+            timeStampSum = timeStampSum + pointTimeStamp;
+            isChunkPositive = isChunkPositive || (chartData[i].y == 1);
+        } else {
+            groupedData.push({"x": timeAtChunkStart, "y": isChunkPositive ? 1 : 0});
+            timeStampSum = 0;
+            isChunkPositive = false;
+            timeAtChunkStart = 0;
+        }
+    }
+    groupedData.push(chartData.at(-1));
+  
+    return groupedData;
 }
 
 //Input: '/endpointName',
@@ -97,6 +129,7 @@ function getChartData(dataArray) {
 //Output: {"before": [dataArray], "after": [dataArray]}
 function getMissingData(dataArray, chartTimeRange) {
   const delay = 30 * 1000, predictedValue = "0";
+  const padding = (chartTimeRange.end.getTime() - chartTimeRange.start.getTime()) / 25;
   const delyedTimeRange = {"start": chartTimeRange.start, "end": new Date(chartTimeRange.end.getTime() - delay)};
   const defaultMissingData = [
       {"data": predictedValue, "createdAt": new Date(chartTimeRange.start).toString()},
@@ -120,7 +153,7 @@ function getMissingData(dataArray, chartTimeRange) {
   else if (dataTimeRange.start <= delyedTimeRange.start && dataTimeRange.end < delyedTimeRange.end) {
       missingData.after = [
           {"data": dataArray.at(-1).data, "createdAt": new Date(dataTimeRange.end).toString()},
-          {"data": predictedValue, "createdAt": new Date(dataTimeRange.end.getTime()+delay).toString()},
+          {"data": predictedValue, "createdAt": new Date(dataTimeRange.end.getTime()+padding).toString()},
           {"data": predictedValue, "createdAt": new Date(chartTimeRange.end).toString()}
       ];
   }
@@ -131,7 +164,7 @@ function getMissingData(dataArray, chartTimeRange) {
   else if (dataTimeRange.start > delyedTimeRange.start && dataTimeRange.end >= delyedTimeRange.end) {
       missingData.before = [
           {"data": predictedValue, "createdAt": new Date(chartTimeRange.start).toString()},
-          {"data": predictedValue, "createdAt": new Date(dataTimeRange.start.getTime()-delay).toString()},
+          {"data": predictedValue, "createdAt": new Date(dataTimeRange.start.getTime()-padding).toString()},
           {"data": dataArray[0].data, "createdAt": new Date(dataTimeRange.start).toString()},
       ];
   }
@@ -142,12 +175,12 @@ function getMissingData(dataArray, chartTimeRange) {
   else if (dataTimeRange.start > delyedTimeRange.start && dataTimeRange.end < delyedTimeRange.end) {
       missingData.before = [
           {"data": predictedValue, "createdAt": new Date(chartTimeRange.start).toString()},
-          {"data": predictedValue, "createdAt": new Date(dataTimeRange.start.getTime()-delay).toString()},
+          {"data": predictedValue, "createdAt": new Date(dataTimeRange.start.getTime()-padding).toString()},
           {"data": dataArray[0].data, "createdAt": new Date(dataTimeRange.start).toString()},
       ];
       missingData.after = [
           {"data": dataArray.at(-1).data, "createdAt": new Date(dataTimeRange.end).toString()},
-          {"data": predictedValue, "createdAt": new Date(dataTimeRange.end.getTime()+delay).toString()},
+          {"data": predictedValue, "createdAt": new Date(dataTimeRange.end.getTime()+padding).toString()},
           {"data": predictedValue, "createdAt": new Date(chartTimeRange.end).toString()}
       ]
   } else {
@@ -291,6 +324,7 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
               fill: true,
               tension: 0,
               pointRadius: 0,
+              borderWidth: 1,
               borderColor: "rgb(228, 48, 48)",
               backgroundColor: function(context) {
               const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
@@ -302,8 +336,9 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
           { 
               data: initialChartData.sensorData,
               fill: true,
-              tension: 0.5,
+              tension: 0.2,
               pointRadius: 0,
+              borderWidth: 1,
               borderColor: "rgba(48, 228, 142, 1)",
               backgroundColor: function(context) {
               const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
@@ -317,6 +352,7 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
               fill: true,
               tension: 0,
               pointRadius: 0,
+              borderWidth: 1,
               borderColor: "rgb(228, 48, 48)",
               backgroundColor: function(context) {
               const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
@@ -384,4 +420,5 @@ export {
     updateChart,
     fetchRawDataArray,
     getAverageChartData,
+    getGroupedChartData,
 }

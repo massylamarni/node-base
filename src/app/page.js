@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import SensorDisplayData from './components/sensor-display-data';
 import SensorDisplayState from './components/sensor-display-state';
-import SensorChart from './components/sensor-chart';
+import SensorDisplayDataChart from './components/sensor-display-data-chart';
+import SensorDisplayStateChart from './components/sensor-display-state-chart';
 
 const TEMPERATURE_INFO = {
   'type': 'Temperature',
@@ -35,11 +36,13 @@ const CHARTS_INFO = {
     {'id': 'chart-s1', 'endpoint': {'name': '/api/get/rfid', 'type': 'GET'}, 'info': RFID_INFO},
     {'id': 'chart-s2', 'endpoint': {'name': '/api/get/movement', 'type': 'GET'}, 'info': MOVEMENT_INFO},
   ],
-  'chart': [
-    {'id': 'chart-c1', 'endpoint': {'name': '/api/get/temperature', 'type': 'GET'}, 'info': TEMPERATURE_INFO},
-    {'id': 'chart-c2', 'endpoint': {'name': '/api/get/gas', 'type': 'GET'}, 'info': GAS_INFO},
-    {'id': 'chart-c3', 'endpoint': {'name': '/api/get/rfid', 'type': 'GET'}, 'info': RFID_INFO},
-    {'id': 'chart-c4', 'endpoint': {'name': '/api/get/movement', 'type': 'GET'}, 'info': MOVEMENT_INFO},
+  'data_chart': [
+    {'id': 'chart-dc1', 'endpoint': {'name': '/api/get/temperature', 'type': 'GET'}, 'info': TEMPERATURE_INFO},
+    {'id': 'chart-dc2', 'endpoint': {'name': '/api/get/gas', 'type': 'GET'}, 'info': GAS_INFO},
+  ],
+  'state_chart': [
+    {'id': 'chart-sc3', 'endpoint': {'name': '/api/get/rfid', 'type': 'GET'}, 'info': RFID_INFO},
+    {'id': 'chart-sc4', 'endpoint': {'name': '/api/get/movement', 'type': 'GET'}, 'info': MOVEMENT_INFO},
   ]
 }
 
@@ -51,6 +54,10 @@ export default function Home() {
       {<SensorDisplayData chartInfo={CHARTS_INFO.data[1]} />}
       {<SensorDisplayState chartInfo={CHARTS_INFO.state[0]} />}
       {<SensorDisplayState chartInfo={CHARTS_INFO.state[1]} />}
+      {<SensorDisplayDataChart chartInfo={CHARTS_INFO.data_chart[0]} />}
+      {<SensorDisplayDataChart chartInfo={CHARTS_INFO.data_chart[1]} />}
+      {<SensorDisplayStateChart chartInfo={CHARTS_INFO.state_chart[0]} />}
+      {<SensorDisplayStateChart chartInfo={CHARTS_INFO.state_chart[1]} />}
     </>
   );
 }

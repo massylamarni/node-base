@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { checkStruct, getDisplayData, setChart, getChartData, getMissingData, updateChart, fetchRawDataArray } from '../functions/main';
 
-const refreshRate = 1000;
+const refreshRate = 5000;
 const getChartTimeRange = () => {
   return {"start": new Date(new Date().getTime() - 1 * 60 * 1000), "end": new Date(new Date().getTime())};
 }
@@ -36,8 +36,6 @@ export default function SensorDisplayData({ chartInfo }) {
       });
       updateChart(chartInfo.id, chartData, chartTimeRange);
     }
-    console.log(chartData);
-    console.log(chartTimeRange);
   }, [data]);
 
   return (

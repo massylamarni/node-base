@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
-import { checkStruct, setChart, getChartData, getMissingData, getAverageChartData, updateChart, fetchRawDataArray } from '../functions/main';
+import { checkStruct, setChart, getChartData, getMissingData, updateChart, fetchRawDataArray, getAverageChartData } from '../functions/main';
 
 const refreshRate = 5000;
 const getChartTimeRange = () => {
   return {"start": new Date(new Date().getTime() - 10 * 60  * 60 * 1000), "end": new Date(new Date().getTime())};
 }
 
-export default function SensorChart({ chartInfo }) {
+export default function SensorDisplayDataChart({ chartInfo }) {
   let missingData = getMissingData([], getChartTimeRange());
   const [data, setData] = useState(null);
   const [chartTimeRange, setChartTimeRange] = useState(getChartTimeRange());
