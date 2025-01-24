@@ -28,7 +28,7 @@ const getStateObjectData = (data) => {
 function getPeakSensorValue(dataArray) {
   if (!checkStruct(dataArray)) return {"min": "Unknown", "max": "Unknown"};
   let max = dataArray[0].data, min = dataArray[0].data;
-  for (let i = 0; i < dataArray.length; i++) {
+  for (let i = 1; i < dataArray.length; i++) {
       if (dataArray[i].data < min) {
           min = dataArray[i].data;
       }
@@ -94,9 +94,9 @@ function getGroupedChartData(chartData, chartTimeRange) {
 
 //Input: '/endpointName',
 //Output_: [{"data": "value"}] or [{"data": {Object}}]
-async function fetchRawDataArray(endpointName, setter) {
+async function fetchRawDataArray(endpointName, setter, timeRange) {
   try {
-      const response = await fetch(endpointName, {
+      const response = await fetch(`${endpointName}?timeStart=${timeRange.start.getTime()}&timeEnd=${timeRange.end.getTime()}`, {
           method: 'GET',
           headers: {
             "Content-Type": "application/json",
@@ -128,6 +128,7 @@ function getChartData(dataArray) {
 //Input: [{"data": "value", "createdAt": "timeString"}] or [{"data": {Object}, "createdAt": "timeString"}]
 //Output: {"before": [dataArray], "after": [dataArray]}
 function getMissingData(dataArray, chartTimeRange) {
+    const debug = false; if (debug) {console.log('B.inMissingData'); console.log(dataArray); console.log(chartTimeRange);}
   const delay = 30 * 1000, predictedValue = "0";
   const padding = (chartTimeRange.end.getTime() - chartTimeRange.start.getTime()) / 25;
   const delyedTimeRange = {"start": chartTimeRange.start, "end": new Date(chartTimeRange.end.getTime() - delay)};
@@ -139,12 +140,14 @@ function getMissingData(dataArray, chartTimeRange) {
   let missingData = {"before": [], "after": []};
   if (!checkStruct(dataArray)) {
       missingData.after = defaultMissingData;
+      if (debug) console.log('no data');
       return missingData;
   }
   const dataTimeRange = {"start": new Date(dataArray[0].createdAt), "end": new Date(dataArray.at(-1).createdAt)};
 
   if (dataTimeRange.start <= delyedTimeRange.start && dataTimeRange.end >= delyedTimeRange.end) {
       //Normal behavior
+      if (debug) console.log('normal behavior');
   }
   /*
   [ds, de]
@@ -156,6 +159,7 @@ function getMissingData(dataArray, chartTimeRange) {
           {"data": predictedValue, "createdAt": new Date(dataTimeRange.end.getTime()+padding).toString()},
           {"data": predictedValue, "createdAt": new Date(chartTimeRange.end).toString()}
       ];
+      if (debug) console.log('after');
   }
   /*
     [ds, de]
@@ -167,6 +171,7 @@ function getMissingData(dataArray, chartTimeRange) {
           {"data": predictedValue, "createdAt": new Date(dataTimeRange.start.getTime()-padding).toString()},
           {"data": dataArray[0].data, "createdAt": new Date(dataTimeRange.start).toString()},
       ];
+      if (debug) console.log('before');
   }
   /*
     [ds, de]
@@ -183,10 +188,13 @@ function getMissingData(dataArray, chartTimeRange) {
           {"data": predictedValue, "createdAt": new Date(dataTimeRange.end.getTime()+padding).toString()},
           {"data": predictedValue, "createdAt": new Date(chartTimeRange.end).toString()}
       ]
+      if (debug) console.log('both sides');
   } else {
       missingData.after = defaultMissingData;
+      if (debug) console.log('other');
   }
 
+  if (debug) {console.log(missingData); console.log('E.inMissingData');}
   return missingData;
 }
 
@@ -208,6 +216,7 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
               duration: 0,
           },
           responsive: true,
+          maintainAspectRatio: false,
           scales: {
               x: {
                   type: 'time',
@@ -291,6 +300,7 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
               duration: 0,
           },
           responsive: true,
+          maintainAspectRatio: true,
           scales: {
               x: {
               type: 'time',
@@ -327,24 +337,24 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
               borderWidth: 1,
               borderColor: "rgb(228, 48, 48)",
               backgroundColor: function(context) {
-              const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
-              gradient.addColorStop(0.5, 'rgba(228, 48, 48, 0.1)');
-              gradient.addColorStop(1, 'rgba(31, 31, 31, 0)');
-              return gradient;
+                const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
+                gradient.addColorStop(0.5, 'rgba(228, 48, 48, 0.1)');
+                gradient.addColorStop(1, 'rgba(31, 31, 31, 0)');
+                return gradient;
               },
           },
           { 
               data: initialChartData.sensorData,
               fill: true,
               tension: 0.2,
-              pointRadius: 0,
+              pointRadius: 1,
               borderWidth: 1,
               borderColor: "rgba(48, 228, 142, 1)",
               backgroundColor: function(context) {
-              const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
-              gradient.addColorStop(0.5, 'rgba(48, 228, 142, 0.1)');
-              gradient.addColorStop(1, 'rgba(31, 31, 31, 0)');
-              return gradient;
+                const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
+                gradient.addColorStop(0.5, 'rgba(48, 228, 142, 0.1)');
+                gradient.addColorStop(1, 'rgba(31, 31, 31, 0)');
+                return gradient;
               },
           },
           { 
@@ -355,10 +365,10 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
               borderWidth: 1,
               borderColor: "rgb(228, 48, 48)",
               backgroundColor: function(context) {
-              const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
-              gradient.addColorStop(0.5, 'rgba(228, 48, 48, 0.1)');
-              gradient.addColorStop(1, 'rgba(31, 31, 31, 0)');
-              return gradient;
+                const gradient = ctx.createLinearGradient(0, 0, 0, context.chart.height);
+                gradient.addColorStop(0.5, 'rgba(228, 48, 48, 0.1)');
+                gradient.addColorStop(1, 'rgba(31, 31, 31, 0)');
+                return gradient;
               },
           },
           ]
@@ -370,6 +380,7 @@ function setChart(chartId, chartType, initialChartData, initialChartTimeRange) {
       data: data,
       options: options
   });
+  return chartInsts[chartId];
 }
 
 async function updateChart(chartId, chartData, chartTimeRange) {
