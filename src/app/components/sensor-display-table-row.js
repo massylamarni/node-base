@@ -42,7 +42,7 @@ export default function SensorDisplayTableRow({ tableRowData }) {
       <div className="sensor-display-table-row-body">
         <div className="sensor-display-table-row-peaks">
           <div>
-            <div>{tableRowData.data.createdAt}</div>
+            <div>{new Date(tableRowData.data.createdAt).toLocaleString()}</div>
             <div>Recorded at</div>
           </div>
         </div>
