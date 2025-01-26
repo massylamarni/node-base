@@ -405,7 +405,7 @@ const getDisplayData = (data, dataTimeRange) => {
 }
 
 const getDisplayStateData = (state, isRealTime, dataTimeRange) => {
-    if (!checkStruct(state)) return {'value': 'Unknown', 'state': '-1'};
+    if (!checkStruct(state) || state[0].data == 'Unknown') return {'value': 'Unknown', 'state': '-1'};
     const missingDataValue = !isRealTime ? false : getMissingData(state, dataTimeRange).after;
     const stateObjectData = getStateObjectData(state.at(-1).data);
     let stateDataValue, stateDataState;
