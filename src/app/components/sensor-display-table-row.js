@@ -2,6 +2,8 @@ import { getDisplayStateData } from '../functions/main';
 
 export default function SensorDisplayTableRow({ tableRowData }) {
   const displayStateData = getDisplayStateData([tableRowData.data], false);
+  console.log(tableRowData);
+  console.log(displayStateData);
   return (
     <div className="sensor-display-table-row">
       <div className="sensor-display-table-row-head">

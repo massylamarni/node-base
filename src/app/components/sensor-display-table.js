@@ -45,9 +45,9 @@ export default function SensorDisplayTable({ tableInfo, refreshRate }) {
   function handleScroll(event) {
     const tableEl = tableRef.current;
     if (event.deltaY > 0) {         //Scroll down
-      updateDataAnchor(1);
-    } else if (event.deltaY < 0) {  //Scroll up
       updateDataAnchor(0);
+    } else if (event.deltaY < 0) {  //Scroll up
+      updateDataAnchor(1);
     }
   };
 

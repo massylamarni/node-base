@@ -16,7 +16,7 @@ const filterNull = (rawDataArray) => {
 
 //Specific structure to the rawDataArray state object
 const getStateObjectData = (data) => {
-  if (typeof data !== 'object') return false;
+  if ((data) && (typeof data !== 'object')) return false;
   const keys = Object.keys(data);
   let type;
   (data[keys[0]] !== '1' && data[keys[0]] !== '0') ? type = 0 : type = 1;
