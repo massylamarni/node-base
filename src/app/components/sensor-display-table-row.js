@@ -1,5 +1,7 @@
+import { getDisplayStateData } from '../functions/main';
+
 export default function SensorDisplayTableRow({ tableRowData }) {
-  console.log(tableRowData.data)
+  const displayStateData = getDisplayStateData([tableRowData.data], false);
   return (
     <div className="sensor-display-table-row">
       <div className="sensor-display-table-row-head">
@@ -7,7 +9,7 @@ export default function SensorDisplayTableRow({ tableRowData }) {
         <>
           <div>
               <div className="sensor-display-table-row-title">
-                <div>{tableRowData.data.state ? tableRowData.info.info.true : tableRowData.info.info.false}</div>
+                <div>{displayStateData.state ? tableRowData.info.info.true : tableRowData.info.info.false}</div>
                 <div>{tableRowData.info.info.unit}</div>
               </div>
               <div className="sensor-display-table-row-subtitle">
@@ -16,7 +18,7 @@ export default function SensorDisplayTableRow({ tableRowData }) {
           </div>
           <div>
             <div className="sensor-display-table-row-title">
-              <div>{tableRowData.data.data}</div>
+              <div>{typeof displayStateData.value === 'boolean' ? ((displayStateData.value) ? "1.00" : "0.00") : displayStateData.value}</div>
               <div>{tableRowData.info.info.unit}</div>
             </div>
             <div className="sensor-display-table-row-subtitle">

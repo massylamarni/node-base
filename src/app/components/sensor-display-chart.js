@@ -32,6 +32,10 @@ export default function SensorDisplayChart({ chartInfo, refreshRate }) {
   }, [refreshRate, selectedTimeRange]);
 
   useEffect(() => {
+    fetchRawDataArray(chartInfo.endpoint.name, setData, chartTimeRange);
+  }, [chartTimeRange]);
+
+  useEffect(() => {
     if (checkStruct(data)) {
       missingData = getMissingData(data, chartTimeRange);
       chartData = {

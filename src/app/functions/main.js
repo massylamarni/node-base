@@ -129,7 +129,7 @@ function getChartData(dataArray) {
 //Output: {"before": [dataArray], "after": [dataArray]}
 function getMissingData(dataArray, chartTimeRange) {
     const debug = false; if (debug) {console.log('B.inMissingData'); console.log(dataArray); console.log(chartTimeRange);}
-  const delay = 30 * 1000, predictedValue = "0";
+  const delay = 60 * 1000, predictedValue = "0";
   const padding = (chartTimeRange.end.getTime() - chartTimeRange.start.getTime()) / 25;
   const delyedTimeRange = {"start": chartTimeRange.start, "end": new Date(chartTimeRange.end.getTime() - delay)};
   const defaultMissingData = [
@@ -404,9 +404,9 @@ const getDisplayData = (data, dataTimeRange) => {
     return {'value': dataValue, 'peaks': dataPeaks};
 }
 
-const getDisplayStateData = (state, dataTimeRange) => {
+const getDisplayStateData = (state, isRealTime, dataTimeRange) => {
     if (!checkStruct(state)) return {'value': 'Unknown', 'state': '-1'};
-    const missingDataValue = getMissingData(state, dataTimeRange).after;
+    const missingDataValue = !isRealTime ? false : getMissingData(state, dataTimeRange).after;
     const stateObjectData = getStateObjectData(state.at(-1).data);
     let stateDataValue, stateDataState;
     if (stateObjectData) {
@@ -432,4 +432,5 @@ export {
     fetchRawDataArray,
     getAverageChartData,
     getGroupedChartData,
+    getStateObjectData,
 }

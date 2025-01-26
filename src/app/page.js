@@ -54,7 +54,6 @@ const TABLES_INFO = {
 export default function Home() {
   const [refreshRate, setRefreshRate] = useState(30000);
   const [selectedSensor, setSelectedSensor] = useState(CHARTS_INFO.data[0].id.at(-1));
-console.log(selectedSensor);
   return (
     <>
       <div className='sensors-display-layout'>

@@ -16,7 +16,7 @@ export default function SensorDisplayData({ chartInfo, refreshRate, setSelectedS
       "sensorData": [],
       "missingDataAfter": getChartData(missingData.after)
   };
-  let displayData = chartInfo.type == 'data' ? getDisplayData(data, getChartTimeRange()) : getDisplayStateData(data, getChartTimeRange());;
+  let displayData = chartInfo.type == 'data' ? getDisplayData(data, getChartTimeRange()) : getDisplayStateData(data, true, getChartTimeRange());;
   
   useEffect(() => {
     const chart = setChart(chartInfo.id, 0, chartData, chartTimeRange);
@@ -25,18 +25,20 @@ export default function SensorDisplayData({ chartInfo, refreshRate, setSelectedS
 
   useEffect(() => {
     setChartTimeRange(getChartTimeRange());
-    fetchRawDataArray(chartInfo.endpoint.name, setData, chartTimeRange);
     const intervalId = setInterval(() => {
       setChartTimeRange(getChartTimeRange());
-      fetchRawDataArray(chartInfo.endpoint.name, setData, chartTimeRange);
     }, refreshRate);
     return () => clearInterval(intervalId);
   }, [refreshRate, selectedTimeRange]);
 
   useEffect(() => {
+      fetchRawDataArray(chartInfo.endpoint.name, setData, chartTimeRange);
+  }, [chartTimeRange]);
+
+  useEffect(() => {
     if (checkStruct(data)) {
       missingData = getMissingData(data, chartTimeRange);
-      displayData = chartInfo.type == 'data' ? getDisplayData(data, chartTimeRange) : getDisplayStateData(data, getChartTimeRange());;
+      displayData = chartInfo.type == 'data' ? getDisplayData(data, chartTimeRange) : getDisplayStateData(data, true, getChartTimeRange());;
       chartData = {
         "missingDataBefore": getChartData(missingData.before),
         "sensorData": getChartData(data),
